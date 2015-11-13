@@ -1,5 +1,8 @@
 package uk.ivanc.archimvp.model;
 
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.logging.HttpLoggingInterceptor;
+
 import java.util.List;
 
 import retrofit.GsonConverterFactory;
@@ -21,10 +24,18 @@ public interface GithubService {
 
     class Factory {
         public static GithubService create() {
+
+            HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+            interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+            OkHttpClient httpClient = new OkHttpClient();
+            httpClient.interceptors().add(interceptor);
+
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl("https://api.github.com/")
                     .addConverterFactory(GsonConverterFactory.create())
                     .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                    .client(httpClient)
                     .build();
             return retrofit.create(GithubService.class);
         }
